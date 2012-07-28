@@ -31,7 +31,6 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-
 package com.ideeli.utils.jstatsd.networking;
 
 import java.io.IOException;
@@ -51,17 +50,20 @@ import java.util.*;
 public class Connection {
 
     static class Reaper {
+
         private final HashSet connections = new HashSet();
         private final Reap reap = new Reap();
         private volatile long sleepTime = Long.MAX_VALUE;
         private Thread thread;
 
         class Reap implements Runnable {
+
             public void run() {
                 do {
                     try {
                         Thread.sleep(sleepTime);
-                    } catch (InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                 } while (doReap());
             }
 
@@ -71,8 +73,10 @@ public class Connection {
                 List connToClose = new ArrayList();
                 synchronized (Reaper.this) {
                     for (Iterator iter = connections.iterator(); iter.hasNext();) {
-                        Connection conn = (Connection)iter.next();
-                        if (conn.getCloseTime() > currentTime) continue;
+                        Connection conn = (Connection) iter.next();
+                        if (conn.getCloseTime() > currentTime) {
+                            continue;
+                        }
                         switch (conn.acquire()) {
                             case USED:
                             case CLOSED:
@@ -88,7 +92,7 @@ public class Connection {
                     }
                 }
                 for (Iterator iter = connToClose.iterator(); iter.hasNext();) {
-                    Connection conn = (Connection)iter.next();
+                    Connection conn = (Connection) iter.next();
                     conn.close();
                 }
                 return result;
@@ -112,7 +116,6 @@ public class Connection {
             }
         }
     }
-
     static final byte USED = -1, CLOSED = 0, READY = 1;
     static final Reaper reaper = new Reaper();
     final ConnectionPool pool;
@@ -125,16 +128,15 @@ public class Connection {
     }
 
     /**
-     * Returns this connection to its pool. This method should be called only
-     * if it is safe to reuse the connection in the future; otherwise, the
-     * connection should be {@link close closed}.
-     * Connection may be not reusable if it is left by the preceding
-     * operation in an inconsistent state, e.g. if the client failed to read
-     * all the data written by the server etc. The precise meaning of a
-     * consistent state is defined by a higher-level application protocol.
-     * <p>
-     * After returning the connection to the pool, client should not use
-     * or close the socket associated with that connection.
+     * Returns this connection to its pool. This method should be called only if
+     * it is safe to reuse the connection in the future; otherwise, the
+     * connection should be {@link close closed}. Connection may be not reusable
+     * if it is left by the preceding operation in an inconsistent state, e.g.
+     * if the client failed to read all the data written by the server etc. The
+     * precise meaning of a consistent state is defined by a higher-level
+     * application protocol. <p> After returning the connection to the pool,
+     * client should not use or close the socket associated with that
+     * connection.
      */
     public void returnToPool() {
         release(System.currentTimeMillis() + pool.expirationTimeout);
@@ -149,12 +151,14 @@ public class Connection {
     public void close() {
         try {
             socket.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
         pool.notifyConnectionStateChanged();
     }
 
     /**
      * Returns the socket associated with this connection.
+     *
      * @return the socket associated with this connection
      */
     public synchronized Socket getSocket() {
@@ -181,11 +185,9 @@ public class Connection {
         if (socket.isClosed()) {
             // no op
             return;
-        }
-        else if (expires == -1) {
+        } else if (expires == -1) {
             expires = closeTime;
-        }
-        else {
+        } else {
             throw new IllegalStateException("Not currently used");
         }
     }

@@ -84,7 +84,7 @@ public class ASyncUDPSrv {
                 }
             }
         });
-        Logger.getLogger(Jstatsd.class.getName()).log(Level.INFO, "Starting UDP\nUDP Port: "+Port);
+        Logger.getLogger(Jstatsd.class.getName()).log(Level.INFO, "Starting UDP\nUDP Port: " + Port);
         UDPServerT.start();
     }
 

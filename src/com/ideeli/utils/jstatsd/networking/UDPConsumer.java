@@ -9,7 +9,6 @@ package com.ideeli.utils.jstatsd.networking;
  * @author marc
  */
 public interface UDPConsumer {
-    
+
     public void consume(String data);
-    
 }

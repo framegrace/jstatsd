@@ -31,9 +31,8 @@ public class Jstatsd implements UDPConsumer {
     private long delay;
     // Bucket double buffer to avoid locking
     private Bucket[] bucket = new Bucket[2];
-    int currentBucket=0;
-    Object bucketLock=new Object();
-    
+    int currentBucket = 0;
+    Object bucketLock = new Object();
     boolean debug = false;
     // Using only one bucket for now.
     // Interface prepared to allow multiple ones in the future
@@ -75,13 +74,13 @@ public class Jstatsd implements UDPConsumer {
         scheduler.schedule(new TimerTask() {
             @Override
             public void run() {
-                int oldBucket=currentBucket;
+                int oldBucket = currentBucket;
                 // Make entries to write on the other Bucket
-                synchronized(bucketLock) {
-                    currentBucket=(currentBucket+1)%2;
+                synchronized (bucketLock) {
+                    currentBucket = (currentBucket + 1) % 2;
                 }
                 if (debug) {
-                    System.out.println("Flushing buket "+oldBucket);
+                    System.out.println("Flushing buket " + oldBucket);
                     backend.flush(System.out, bucket[oldBucket]);
                     return;
                 }
@@ -96,8 +95,8 @@ public class Jstatsd implements UDPConsumer {
                     return;
                 }
                 try {
-                    System.out.println("Flushing buket "+oldBucket);
-                    backend.flush(c.getSocket().getOutputStream(),bucket[oldBucket]);
+                    System.out.println("Flushing buket " + oldBucket);
+                    backend.flush(c.getSocket().getOutputStream(), bucket[oldBucket]);
                 } catch (IOException ex) {
                     Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
@@ -129,8 +128,8 @@ public class Jstatsd implements UDPConsumer {
             return;
         }
         Bucket bucketToUse;
-        synchronized(bucketLock) {
-            bucketToUse=bucket[currentBucket];
+        synchronized (bucketLock) {
+            bucketToUse = bucket[currentBucket];
         }
         bucketToUse.add(m.group(1), value, m.group(3));
     }

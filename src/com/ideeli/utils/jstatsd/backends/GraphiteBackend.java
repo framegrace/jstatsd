@@ -22,9 +22,9 @@ import java.util.logging.Logger;
 public class GraphiteBackend implements Backend {
 
     TcpConfigData config;
-    
-    public GraphiteBackend(String host,int port) {
-        config=new TcpConfigData(host, port);
+
+    public GraphiteBackend(String host, int port) {
+        config = new TcpConfigData(host, port);
     }
 
     @Override
@@ -39,10 +39,10 @@ public class GraphiteBackend implements Backend {
             HashMap<String, Long> CountHashes = bucket.getCountHashes();
             HashMap<String, LinkedList<Long>> TimeHashes = bucket.getTimeHashes();
             HashMap<String, LinkedList<Long>> GaugeHashes = bucket.getGaugeHashes();
-            
+
             long currentFlush = System.currentTimeMillis();
-            long lastFlush=bucket.getLastFlush();
-            
+            long lastFlush = bucket.getLastFlush();
+
             Logger.getLogger(Jstatsd.class.getName()).log(Level.FINE, "Flushing... last " + (currentFlush - lastFlush) + " ms.");
             double c_interval = (currentFlush - lastFlush) / 1000.0;
             OutputStreamWriter osm = new OutputStreamWriter(out);
@@ -119,5 +119,4 @@ public class GraphiteBackend implements Backend {
             Logger.getLogger(GraphiteBackend.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 }

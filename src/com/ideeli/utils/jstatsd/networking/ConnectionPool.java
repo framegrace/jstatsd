@@ -31,7 +31,6 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-
 package com.ideeli.utils.jstatsd.networking;
 
 import com.ideeli.utils.jstatsd.Jstatsd;
@@ -44,26 +43,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages a pool of socket connections to a single network endpoint.
- * Pooling enables reusing connections for multiple, unrelated data transfers,
- * and it can be used to implement certain connection-based protocols like
- * HTTP 1.1. Additionally, pooling can aid in controlling network load -
- * limiting the maximum pool size causes excessive connection requests to
- * be enqueued at the client side.
- * <p>
- * The endpoint is represented by a host name and a port number, as well as
- * by an optional client socket factory, specified at
- * the construction time. Client requests connections, use them, then return
- * them to the pool. Clients should not close the socket associated with
- * the connection or use the socket after returning connection to the pool.
- * Upon a request for connection, the pool first tries to
- * return a pre-existing idle one, creating a new connection only if none
- * is available.
- * Request may block if pool size limit is reached and all connections are in
- * use. After being returned to the pool, if connection idles for longer than
- * its expiration timeout, it is closed.
- * <p>
- * Example:
+ * Manages a pool of socket connections to a single network endpoint. Pooling
+ * enables reusing connections for multiple, unrelated data transfers, and it
+ * can be used to implement certain connection-based protocols like HTTP 1.1.
+ * Additionally, pooling can aid in controlling network load - limiting the
+ * maximum pool size causes excessive connection requests to be enqueued at the
+ * client side. <p> The endpoint is represented by a host name and a port
+ * number, as well as by an optional client socket factory, specified at the
+ * construction time. Client requests connections, use them, then return them to
+ * the pool. Clients should not close the socket associated with the connection
+ * or use the socket after returning connection to the pool. Upon a request for
+ * connection, the pool first tries to return a pre-existing idle one, creating
+ * a new connection only if none is available. Request may block if pool size
+ * limit is reached and all connections are in use. After being returned to the
+ * pool, if connection idles for longer than its expiration timeout, it is
+ * closed. <p> Example:
  *
  * <pre>
  * ConnectionPool pool = new ConnectionPool(host, port);
@@ -85,6 +79,7 @@ import java.util.logging.Logger;
  * @version 1.0
  */
 public class ConnectionPool {
+
     static final long DEFAULT_EXPIRATION_TIMEOUT = 15000;
     static final int DEFAULT_CAPACITY = 10;
     private final HashSet connections = new HashSet();
@@ -109,18 +104,17 @@ public class ConnectionPool {
 
     /**
      * Creates a connection pool for a specified endpoint, using specified
-     * socket factory and a default expiration timeout of 15 s and a
-     * default capacity of 10 connections.
+     * socket factory and a default expiration timeout of 15 s and a default
+     * capacity of 10 connections.
      *
      * @param hostName remote host name
      * @param port remote port
      * @param socketFactory socket factory to use when creating new connections
      */
     public ConnectionPool(String hostName, int port,
-                          RMIClientSocketFactory socketFactory)
-    {
+            RMIClientSocketFactory socketFactory) {
         this(hostName, port, socketFactory,
-             DEFAULT_EXPIRATION_TIMEOUT, DEFAULT_CAPACITY);
+                DEFAULT_EXPIRATION_TIMEOUT, DEFAULT_CAPACITY);
     }
 
     /**
@@ -133,8 +127,7 @@ public class ConnectionPool {
      * @param capacity maximum number of active connections
      */
     public ConnectionPool(String hostName, int port,
-                          long expirationTimeout, int capacity)
-    {
+            long expirationTimeout, int capacity) {
         this(hostName, port, null, expirationTimeout, capacity);
     }
 
@@ -149,13 +142,12 @@ public class ConnectionPool {
      * @param capacity maximum number of active connections
      */
     public ConnectionPool(
-        String hostName,
-        int port,
-        RMIClientSocketFactory socketFactory,
-        long expirationTimeout,
-        int capacity)
-    {
-        Logger.getLogger(Jstatsd.class.getName()).log(Level.INFO, "Starting Graphite connection pool\nHostname: "+hostName+"\nPort: "+port);
+            String hostName,
+            int port,
+            RMIClientSocketFactory socketFactory,
+            long expirationTimeout,
+            int capacity) {
+        Logger.getLogger(Jstatsd.class.getName()).log(Level.INFO, "Starting Graphite connection pool\nHostname: " + hostName + "\nPort: " + port);
         if (capacity <= 0 || expirationTimeout < 0) {
             throw new IllegalArgumentException();
         }
@@ -169,7 +161,7 @@ public class ConnectionPool {
     private Connection findConnection() {
         Connection result = null;
         for (Iterator iter = connections.iterator(); iter.hasNext();) {
-            Connection conn = (Connection)iter.next();
+            Connection conn = (Connection) iter.next();
             byte connStatus = conn.acquire();
             if (connStatus == Connection.READY) {
                 result = conn;
@@ -188,17 +180,16 @@ public class ConnectionPool {
     /**
      * Requests a connection from the pool. If an existing idle connection is
      * found, it is returned. Otherwise, if pool capacity has not been reached,
-     * new connection is created. Otherwise, the operation blocks until
-     * a connection is available.
+     * new connection is created. Otherwise, the operation blocks until a
+     * connection is available.
      *
      * @return a connection
      * @throws IOException if I/O error occurs
-     * @throws InterruptedException if interrupted while waiting for
-     *                              a connection
+     * @throws InterruptedException if interrupted while waiting for a
+     * connection
      */
     public synchronized Connection getConnection()
-        throws IOException, InterruptedException
-    {
+            throws IOException, InterruptedException {
         // make sure that connection pooling does not circumvent security
         // policy by allowing unauthorized clients to use network sockets
         checkConnectPermission();
@@ -210,8 +201,8 @@ public class ConnectionPool {
                 conn = findConnection();
             } else {
                 Socket socket = socketFactory != null
-                    ? socketFactory.createSocket(hostName, port)
-                    : new Socket(hostName, port);
+                        ? socketFactory.createSocket(hostName, port)
+                        : new Socket(hostName, port);
                 conn = new Connection(socket, this);
                 connections.add(conn);
             }

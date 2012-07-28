@@ -11,12 +11,13 @@ import com.ideeli.utils.jstatsd.Bucket;
  * @author marc
  */
 public interface Backend {
+
     /**
      *
      * @param out
      * @param bucket
      */
-    public void flush(java.io.OutputStream out,Bucket bucket);
+    public void flush(java.io.OutputStream out, Bucket bucket);
+
     public TcpConfigData getConfig();
-    
 }
