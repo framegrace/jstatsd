@@ -132,7 +132,6 @@ public class Jstatsd implements UDPConsumer {
         synchronized(bucketLock) {
             bucketToUse=bucket[currentBucket];
         }
-        System.out.println("Adding to bucket "+currentBucket);
         bucketToUse.add(m.group(1), value, m.group(3));
     }
 
