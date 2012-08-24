@@ -9,8 +9,11 @@ import com.ideeli.utils.jstatsd.backends.GraphiteBackend;
 import com.ideeli.utils.jstatsd.networking.ASyncUDPSrv;
 import com.ideeli.utils.jstatsd.networking.Connection;
 import com.ideeli.utils.jstatsd.networking.ConnectionPool;
+import com.ideeli.utils.jstatsd.networking.NioTCPServer;
+import com.ideeli.utils.jstatsd.networking.TCPConsumer;
 import com.ideeli.utils.jstatsd.networking.UDPConsumer;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -22,9 +25,8 @@ import java.util.regex.Pattern;
  *
  * @author marc
  */
-public class Jstatsd implements UDPConsumer {
+public class Jstatsd implements UDPConsumer,TCPConsumer {
 
-    ConnectionPool pool;
     String BackendHost;
     int BakendPort;
     private int UDPPort;
@@ -39,6 +41,7 @@ public class Jstatsd implements UDPConsumer {
     private Backend backend;
     Timer scheduler = new Timer("Flush scheduler.");
     ASyncUDPSrv srvr;
+    NioTCPServer tcpsrvr;
 
     public Jstatsd(int UDPPort, String TCPHost, int TCPPort, int seconds) {
         this.BackendHost = TCPHost;
@@ -56,18 +59,19 @@ public class Jstatsd implements UDPConsumer {
         this.debug = debug;
     }
 
-    public void init() {
+    public void init() throws UnknownHostException {
         initNeworking();
         initScheduler();
     }
 
-    void initNeworking() {
+    void initNeworking() throws UnknownHostException {
         // This may look stupid now, but will make easier
         // to have more than one backend in the future.
         backend = new GraphiteBackend(BackendHost, BakendPort);
-        pool = new ConnectionPool(backend.getConfig().getHost(), backend.getConfig().getPort());
         srvr = new ASyncUDPSrv(UDPPort, this);
+        tcpsrvr = new NioTCPServer(9200, this);
         srvr.start();
+        tcpsrvr.start();
     }
 
     void initScheduler() {
@@ -84,24 +88,7 @@ public class Jstatsd implements UDPConsumer {
                     backend.flush(System.out, bucket[oldBucket]);
                     return;
                 }
-                Connection c;
-                try {
-                    c = pool.getConnection();
-                } catch (IOException ex) {
-                    Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                }
-                try {
-                    System.out.println("Flushing buket " + oldBucket);
-                    backend.flush(c.getSocket().getOutputStream(), bucket[oldBucket]);
-                } catch (IOException ex) {
-                    Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
-                } finally {
-                    c.returnToPool();
-                }
+                backend.flush(bucket[oldBucket]);
             }
         }, delay, delay);
     }
@@ -114,7 +101,12 @@ public class Jstatsd implements UDPConsumer {
     Pattern p = Pattern.compile("^([^:]+):(\\d+)\\|(g|c|ms)$");
 
     @Override
-    public void consume(String data) {
+    public void consumeTCP(int port, String data) {
+        backend.send(data);
+    }
+    
+    @Override
+    public void consumeUDP(String data) {
         long value;
         Matcher m = p.matcher(data);
         try {
@@ -137,7 +129,7 @@ public class Jstatsd implements UDPConsumer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         // TODO code application logic here
         int Interval = 0;
         int UdpPort = 0;
@@ -179,4 +171,5 @@ public class Jstatsd implements UDPConsumer {
             }
         });
     }
+
 }

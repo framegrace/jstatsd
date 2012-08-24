@@ -8,7 +8,7 @@ package com.ideeli.utils.jstatsd.networking;
  *
  * @author marc
  */
-public interface UDPConsumer {
+public interface TCPConsumer {
 
-    public void consumeUDP(String data);
+    public void consumeTCP(int port,String data);
 }

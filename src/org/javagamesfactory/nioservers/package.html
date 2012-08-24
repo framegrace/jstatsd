@@ -1,0 +1,106 @@
+<html>
+	<body>
+		<h4>Overview</h4>
+		<P>
+			For a simple demo, run the SimpleServerDemo class - this is
+			fully standalone basic implementation of a server using the
+			rest of this package that will test if you have all the
+			necessary additional libraries, e.g. Log4J
+		</P>
+		<h4>Usage</h4>
+		<P>
+			Most of the time, you only care about 2 classes in this
+			package:
+			<a href="StringBasedServer.html">StringBasedServer</a>
+			, which ALL your servers will extend, and
+			<a href="StringBasedClient.html">StringBasedClient</a>
+			, which ALL your clients will use to do the low-level bytes
+			send and receive to the server.
+		</P>
+		<P>
+			Your clients also need to implement iMessageProcessor in
+			order to actually receive the parsed messages from the
+			server
+		</P>
+		<h4>Contact</h4>
+		<P>
+		Comments / suggestions / additions / fixes / ideas can be sent to:
+		</P>
+		<p>
+		amartin at ncsoft.com
+		</p>
+		<h4>Misc</h4>
+		<h5>Licensing</h5>
+		<p>
+		OpenBSD/MIT/etc - i.e. do what you like with this, just include a
+		reference to the fact you used it, in the form of the following URL
+		(or any different one that I later update this doc with):
+		</p>
+		<p>
+		http://tmachine1.dh.bytemark.co.uk/blog/
+		</p>
+		<h5>Why did I make this?</h5>
+		<P>
+		Mainly because Sun's NIO libraries are very low-level, but with plenty of bugs,
+		so that it takes a lot of time and effort to make even the simplest of working
+		client/server applications with them.
+		</P>
+		<P>
+		In case you weren't aware, MOST resources on the internet providing source code
+		for Java NIO servers are WRONG and FULL OF BUGS that mean they WILL NOT WORK -
+		including BOTH of the O'Reilly books I've read ("Java NIO" and "Learning Java").
+		That's pretty shameful considering those are both extremely widely-used books :(.
+		In both cases, the authors clearly A) never read the API properly, and B) never
+		actually tried writing any NIO server code in their life. Or, at least, they
+		wrote it but never ran it on the internet - a glance at their source code shows
+		it won't work except on a local switched LAN, and even then only for VERY simple
+		programs.
+		</P>
+		<P>
+		So, although this library is NOT particularly optimized (mostly in that it is
+		wasteful with how it creates ByteBuffers), it DOES ACTUALLY WORK and is pretty
+		simple and well-documented, so hopefully you can use it to make your own servers.
+		</P>
+		<h5>Why string-based, and TCP only?</h5>
+		<P>
+		TCP only: because I created this for "incubation" projects - i.e. small game
+		experiments I wanted to try out. The code supplied will actually work reasonably
+		well for most realtime games with current internet performance (I've made various
+		simple multiplayer games with it) - but if you find your game is particularly good
+		and want to make a proper multiplayer version over the internet, you'll want to
+		replace the TCP with UDP. That will be very, very easy to do - but not necessary
+		for the majority of people who are just making simple games.
+		</P> 
+		<P>
+		String-based: because A) you ALWAYS need strings! (what, your game has no in-game
+		chat? Shame on you!), and B) it's much, much easier to debug, and C) when you're
+		developing code very fast (I'm using Scrum) strings allow you to use "fuzzy"
+		message protocols, such as XML + XPath, which means that when you switch around
+		features, or change the message format, most of your code carries on working fine.
+		Binary protocols tend to break every time you make even one tiny change.
+		</P>
+		<P>
+		When you get to the point where strings aren't good enough performance for your
+		game, you've already got a pretty damned advanced game, and you'll find the only
+		thing you need to do to make this server work purely in bytes is to REMOVE lines
+		of code (all the Charset encoding and decoding) and to change one or two method
+		signatures to accept bytearrays or bytebuffers instead of strings as argument.
+		</P> 
+		<h5>javadocs verbosity</h5>
+		<P>
+		These javadocs are generated for ALL protected and public methods
+		and variables, which means there's a lot you don't need to see
+		(and usually isn't documented) - this is because there are several
+		methods in the StringBasedServer that need to be protected (e.g.
+		because you don't want them being public on your subclasses!) but
+		which you MUST use (because they are abstract so you need to override
+		them).
+		</P>
+		<p>
+		Sadly, after a mere 10 years, eclipse + javadoc is not yet advanced
+		enough to easily output protected docs only for that one class, and
+		public for all others.
+		</p>
+		
+	</body>
+</html>

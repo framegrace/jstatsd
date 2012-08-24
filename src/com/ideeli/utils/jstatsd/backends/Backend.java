@@ -18,6 +18,8 @@ public interface Backend {
      * @param bucket
      */
     public void flush(java.io.OutputStream out, Bucket bucket);
+    public void flush(Bucket bucket);
+    public void send(String message);
 
     public TcpConfigData getConfig();
 }

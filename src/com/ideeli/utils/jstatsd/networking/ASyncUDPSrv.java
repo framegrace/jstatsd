@@ -104,7 +104,7 @@ public class ASyncUDPSrv {
         requestHandler = new Runnable() {
             @Override
             public void run() {
-                consumer.consume(result);
+                consumer.consumeUDP(result);
             }
         };
         exec.execute(requestHandler);

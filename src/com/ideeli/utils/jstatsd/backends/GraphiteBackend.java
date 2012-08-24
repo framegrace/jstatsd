@@ -6,6 +6,8 @@ package com.ideeli.utils.jstatsd.backends;
 
 import com.ideeli.utils.jstatsd.Bucket;
 import com.ideeli.utils.jstatsd.Jstatsd;
+import com.ideeli.utils.jstatsd.networking.Connection;
+import com.ideeli.utils.jstatsd.networking.ConnectionPool;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collections;
@@ -22,16 +24,66 @@ import java.util.logging.Logger;
 public class GraphiteBackend implements Backend {
 
     TcpConfigData config;
+    ConnectionPool pool;
 
     public GraphiteBackend(String host, int port) {
         config = new TcpConfigData(host, port);
     }
 
+    public void init() {
+        pool = new ConnectionPool(getConfig().getHost(), getConfig().getPort());    
+    }
+    
     @Override
     public TcpConfigData getConfig() {
         return config;
     }
-
+    
+    public void send(String message) {
+        Connection c;
+        try {
+            c = pool.getConnection();
+        } catch (IOException ex) {
+            Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+        System.out.println("Sendind data");
+        try {
+            OutputStreamWriter osm=new OutputStreamWriter(c.getSocket().getOutputStream());
+            osm.write(message);
+            osm.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(GraphiteBackend.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            c.returnToPool();
+        }
+    }
+    
+    @Override
+    public synchronized void flush(Bucket bucket) {
+        Connection c;
+        try {
+            c = pool.getConnection();
+        } catch (IOException ex) {
+            Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+        System.out.println("Flushing buket " + bucket);
+        try {
+            flush(c.getSocket().getOutputStream(), bucket);
+        } catch (IOException ex) {
+            Logger.getLogger(GraphiteBackend.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            c.returnToPool();
+        }
+    }
+    
     @Override
     public synchronized void flush(java.io.OutputStream out, Bucket bucket) {
         // Cleanup Hashes
