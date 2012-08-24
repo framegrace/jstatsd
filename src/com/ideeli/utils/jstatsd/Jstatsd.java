@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  *
@@ -50,6 +51,7 @@ public class Jstatsd implements UDPConsumer,TCPConsumer {
         this.delay = seconds * 1000;
         bucket[0] = new Bucket();
         bucket[1] = new Bucket();
+        DOMConfigurator.configure("log4j.xml");
     }
 
     public void setDebug(boolean debug) {
@@ -86,10 +88,23 @@ public class Jstatsd implements UDPConsumer,TCPConsumer {
                 }
                 if (debug) {
                     System.out.println("Flushing buket " + oldBucket);
-                    backend.flush(System.out, bucket[oldBucket]);
+                    try {
+                        backend.flush(System.out, bucket[oldBucket]);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     return;
                 }
-                backend.flush(bucket[oldBucket]);
+                try {
+                    backend.flush(bucket[oldBucket]);
+                } catch (IOException ex) {
+                   Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, "Backend disconnected using secondary storage.");
+                    try {
+                        backend.flush(System.out, bucket[oldBucket]);
+                    } catch (IOException ex1) {
+                        Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex1);
+                    }
+                }
             }
         }, delay, delay);
     }
@@ -106,7 +121,12 @@ public class Jstatsd implements UDPConsumer,TCPConsumer {
         if (debug) {
             System.out.println(data);
         } else {
-            backend.send(data);
+            try {
+                backend.send(data);
+            } catch (IOException ex) {
+                Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, "Backend disconnected using secondary storage.");
+                System.out.println(data);
+            }
         }
     }
     

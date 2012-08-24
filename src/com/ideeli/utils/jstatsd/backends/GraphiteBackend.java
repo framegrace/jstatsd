@@ -39,13 +39,11 @@ public class GraphiteBackend implements Backend {
         return config;
     }
     
-    public void send(String message) {
+    @Override
+    public void send(String message) throws IOException {
         Connection c;
         try {
             c = pool.getConnection();
-        } catch (IOException ex) {
-            Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
-            return;
         } catch (InterruptedException ex) {
             Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -63,14 +61,11 @@ public class GraphiteBackend implements Backend {
     }
     
     @Override
-    public synchronized void flush(Bucket bucket) {
+    public synchronized void flush(Bucket bucket) throws IOException  {
         Connection c;
         try {
             c = pool.getConnection();
-        } catch (IOException ex) {
-            Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        } catch (InterruptedException ex) {
+        }  catch (InterruptedException ex) {
             Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, null, ex);
             return;
         }

@@ -5,6 +5,7 @@
 package com.ideeli.utils.jstatsd.backends;
 
 import com.ideeli.utils.jstatsd.Bucket;
+import java.io.IOException;
 
 /**
  *
@@ -17,9 +18,9 @@ public interface Backend {
      * @param out
      * @param bucket
      */
-    public void flush(java.io.OutputStream out, Bucket bucket);
-    public void flush(Bucket bucket);
-    public void send(String message);
+    public void flush(java.io.OutputStream out, Bucket bucket) throws IOException;
+    public void flush(Bucket bucket) throws IOException;
+    public void send(String message) throws IOException;
     public void init();
 
     public TcpConfigData getConfig();

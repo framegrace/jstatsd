@@ -7,6 +7,7 @@ package com.ideeli.utils.jstatsd.networking;
 import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.javagamesfactory.nioservers.StringBasedServer;
 
 /**
