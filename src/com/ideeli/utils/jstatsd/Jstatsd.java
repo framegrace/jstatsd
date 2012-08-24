@@ -70,6 +70,7 @@ public class Jstatsd implements UDPConsumer,TCPConsumer {
         backend = new GraphiteBackend(BackendHost, BakendPort);
         srvr = new ASyncUDPSrv(UDPPort, this);
         tcpsrvr = new NioTCPServer(9200, this);
+        backend.init();
         srvr.start();
         tcpsrvr.start();
     }
@@ -102,7 +103,11 @@ public class Jstatsd implements UDPConsumer,TCPConsumer {
 
     @Override
     public void consumeTCP(int port, String data) {
-        backend.send(data);
+        if (debug) {
+            System.out.println(data);
+        } else {
+            backend.send(data);
+        }
     }
     
     @Override
