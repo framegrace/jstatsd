@@ -175,7 +175,7 @@ public class Jstatsd implements UDPConsumer, TCPConsumer {
             Logger.getLogger(Jstatsd.class.getName()).log(Level.SEVERE, "Invalid GraphiteProxyPort: {0}", System.getProperty("jstatsd.GraphitePort"));
             System.exit(1);
         }
-        debug = (System.getProperty("jstatsd.Debug").equals("Yes"));
+        debug = System.getProperty("jstatsd.Debug")==null?false:System.getProperty("jstatsd.Debug").equals("Yes");
         setDebug(debug);
         Logger.getLogger(Jstatsd.class.getName()).log(Level.INFO, "UDPPort={0}", UDPPort);
         Logger.getLogger(Jstatsd.class.getName()).log(Level.INFO, "BackendHost={0}", BackendHost);
