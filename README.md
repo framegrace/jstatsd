@@ -42,3 +42,11 @@ The precedence of the configuration is:
   * Config file (override internal defaults)
   * jar internal defaults.
 
+Install
+=======
+
+Quick and simple: just download dist/jstatsd.jar and run it (Using above examples).
+
+I include the Netbeans project if you want to mess with it, improvements/bugfixes encouraged.
+
+
