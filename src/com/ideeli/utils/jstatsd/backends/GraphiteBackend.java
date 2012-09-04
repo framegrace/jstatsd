@@ -44,7 +44,7 @@ public class GraphiteBackend implements Backend {
     }
     
     @Override
-    public void send(String message) throws IOException {
+    public synchronized void send(String message) throws IOException {
         Connection c;
         try {
             c = pool.getConnection();
