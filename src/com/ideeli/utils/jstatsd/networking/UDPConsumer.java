@@ -10,5 +10,5 @@ package com.ideeli.utils.jstatsd.networking;
  */
 public interface UDPConsumer {
 
-    public void consumeUDP(String data);
+    public void consumeUDP(int port,String data);
 }

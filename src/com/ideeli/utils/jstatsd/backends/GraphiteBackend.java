@@ -30,6 +30,10 @@ public class GraphiteBackend implements Backend {
         config = new TcpConfigData(host, port);
     }
 
+    /**
+     *
+     */
+    @Override
     public void init() {
         pool = new ConnectionPool(getConfig().getHost(), getConfig().getPort());    
     }
@@ -90,7 +94,7 @@ public class GraphiteBackend implements Backend {
             long currentFlush = System.currentTimeMillis();
             long lastFlush = bucket.getLastFlush();
 
-            Logger.getLogger(Jstatsd.class.getName()).log(Level.FINE, "Flushing... last " + (currentFlush - lastFlush) + " ms.");
+            Logger.getLogger(Jstatsd.class.getName()).log(Level.FINE, "Flushing... last {0} ms.", (currentFlush - lastFlush));
             double c_interval = (currentFlush - lastFlush) / 1000.0;
             OutputStreamWriter osm = new OutputStreamWriter(out);
             for (Map.Entry<String, Long> set : CountHashes.entrySet()) {
